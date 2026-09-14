@@ -5,7 +5,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -17,6 +19,47 @@ class MainActivity : Activity() {
     private val blue = Color.rgb(22, 131, 255)
     private val muted = Color.rgb(153, 168, 188)
     private val green = Color.rgb(24, 213, 138)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.statusBarColor = Color.BLACK
+        window.navigationBarColor = Color.BLACK
+
+        // When a website URL is supplied to the build, this APK becomes a real
+        // Web-to-Native Android wrapper around that HTTPS website.
+        val url = BuildConfig.WEBSITE_URL.trim()
+        if (url.isNotEmpty()) {
+            openWebsite(url)
+        } else {
+            openBuilderHome()
+        }
+    }
+
+    private fun openWebsite(url: String) {
+        val webView = WebView(this).apply {
+            setBackgroundColor(Color.BLACK)
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            settings.databaseEnabled = true
+            settings.loadsImagesAutomatically = true
+            settings.javaScriptCanOpenWindowsAutomatically = true
+            settings.mediaPlaybackRequiresUserGesture = false
+            settings.setSupportZoom(false)
+            webViewClient = WebViewClient()
+            webChromeClient = WebChromeClient()
+        }
+        setContentView(webView)
+        webView.loadUrl(url)
+    }
+
+    override fun onBackPressed() {
+        val view = window.decorView.findFocus()
+        if (view is WebView && view.canGoBack()) {
+            view.goBack()
+        } else {
+            super.onBackPressed()
+        }
+    }
 
     private fun tv(text: String, size: Float, color: Int, bold: Boolean = false): TextView = TextView(this).apply {
         this.text = text
@@ -35,11 +78,7 @@ class MainActivity : Activity() {
         setOnClickListener { action() }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        window.statusBarColor = Color.BLACK
-        window.navigationBarColor = Color.BLACK
-
+    private fun openBuilderHome() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(bg)
@@ -50,19 +89,16 @@ class MainActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        val menu = tv("☰", 30f, Color.WHITE).apply { gravity = Gravity.CENTER; setPadding(8, 8, 20, 8) }
-        val plus = Button(this).apply {
+        top.addView(tv("☰", 30f, Color.WHITE).apply { gravity = Gravity.CENTER }, LinearLayout.LayoutParams(0, 58, 1f))
+        top.addView(Button(this).apply {
             text = "✦  Get Plus"
             textSize = 18f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.rgb(80, 170, 255))
             setBackgroundColor(Color.rgb(38, 49, 59))
             setPadding(18, 5, 18, 5)
-        }
-        top.addView(menu, LinearLayout.LayoutParams(0, 58, 1f))
-        top.addView(plus, LinearLayout.LayoutParams(-2, 58))
-        val profile = tv("◔", 29f, Color.WHITE).apply { gravity = Gravity.CENTER; setPadding(20, 8, 4, 8) }
-        top.addView(profile, LinearLayout.LayoutParams(0, 58, 1f))
+        }, LinearLayout.LayoutParams(-2, 58))
+        top.addView(tv("◔", 29f, Color.WHITE).apply { gravity = Gravity.CENTER }, LinearLayout.LayoutParams(0, 58, 1f))
         root.addView(top)
 
         val scroll = ScrollView(this)
@@ -71,57 +107,46 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_HORIZONTAL
         }
 
-        val logo = tv("🤖", 54f, blue).apply { gravity = Gravity.CENTER; setPadding(0, 55, 0, 10) }
-        content.addView(logo, LinearLayout.LayoutParams(-1, 125))
-
-        val brand = tv("APK ", 42f, Color.WHITE, true).apply { append(tvSpan("Builder", blue, true)) }
-        brand.gravity = Gravity.CENTER
+        content.addView(tv("🤖", 54f, blue).apply { gravity = Gravity.CENTER; setPadding(0, 55, 0, 10) }, LinearLayout.LayoutParams(-1, 125))
+        val brand = tv("APK ", 42f, Color.WHITE, true).apply { append(tvSpan("Builder", blue, true)); gravity = Gravity.CENTER }
         content.addView(brand)
-
-        val tagline = tv("Turn your ideas into real Android apps\nwith AI. Fast. Easy. No coding.", 17f, muted).apply {
-            gravity = Gravity.CENTER
-            setPadding(0, 12, 0, 28)
-        }
-        content.addView(tagline)
+        content.addView(tv("Turn your ideas into real Android apps\nwith AI. Fast. Easy. No coding.", 17f, muted).apply { gravity = Gravity.CENTER; setPadding(0, 12, 0, 28) })
 
         val quick = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        val row1 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; weightSum = 2f }
-        row1.addView(cardButton("✦", "Create App", "Describe your idea") { status.text = "Describe your app idea below to start building." }, LinearLayout.LayoutParams(0, 82, 1f))
-        row1.addView(cardButton("▧", "Use Template", "Start from a template") { status.text = "Template library is ready." }, LinearLayout.LayoutParams(0, 82, 1f).apply { leftMargin = 10 })
+        val row1 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        row1.addView(cardButton("✦", "Create App", "Describe your idea") {}, LinearLayout.LayoutParams(0, 82, 1f))
+        row1.addView(cardButton("▧", "Use Template", "Start from a template") {}, LinearLayout.LayoutParams(0, 82, 1f).apply { leftMargin = 10 })
         quick.addView(row1)
-        val row2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; weightSum = 2f }
-        row2.addView(cardButton("</>", "Upload Code", "Use your own project") { status.text = "Native project import is available through the build pipeline." }, LinearLayout.LayoutParams(0, 82, 1f).apply { topMargin = 10 })
-        row2.addView(cardButton("⚙", "App Settings", "Configure your app") { status.text = "${BuildConfig.APP_NAME} • ${BuildConfig.VERSION_NAME}" }, LinearLayout.LayoutParams(0, 82, 1f).apply { topMargin = 10; leftMargin = 10 })
+        val row2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        row2.addView(cardButton("🌐", "Web to APK", "Wrap any HTTPS website") { showWebUrlHelp() }, LinearLayout.LayoutParams(0, 82, 1f).apply { topMargin = 10 })
+        row2.addView(cardButton("⚙", "App Settings", "Configure your app") {}, LinearLayout.LayoutParams(0, 82, 1f).apply { topMargin = 10; leftMargin = 10 })
         quick.addView(row2)
-        content.addView(quick, LinearLayout.LayoutParams(-1, -2))
+        content.addView(quick)
 
-        val recent = tv("Recent Projects", 27f, Color.WHITE, true).apply { setPadding(0, 34, 0, 14) }
-        content.addView(recent)
-
-        fun project(icon: String, name: String, pkg: String, state: String, stateColor: Int): LinearLayout {
-            val box = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; setPadding(16, 13, 16, 13); setBackgroundColor(Color.rgb(10, 15, 21)) }
-            val ic = tv(icon, 25f, Color.WHITE).apply { gravity = Gravity.CENTER; setBackgroundColor(Color.rgb(45, 110, 230)) }
-            box.addView(ic, LinearLayout.LayoutParams(58, 58))
-            val info = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(14, 0, 8, 0) }
-            info.addView(tv(name, 17f, Color.WHITE, true))
-            info.addView(tv(pkg, 13f, muted))
-            info.addView(tv("Built recently", 13f, muted))
-            box.addView(info, LinearLayout.LayoutParams(0, -2, 1f))
-            box.addView(tv(state, 13f, stateColor, true).apply { gravity = Gravity.CENTER; setPadding(12, 10, 12, 10) }, LinearLayout.LayoutParams(-2, -2))
-            return box
-        }
-        content.addView(project("🛍", "My Store App", "com.mystore.app", "✓ Ready", green), LinearLayout.LayoutParams(-1, 78).apply { bottomMargin = 10 })
-        content.addView(project("💬", "Chat App", "com.chat.app", "◯ Building", blue), LinearLayout.LayoutParams(-1, 78).apply { bottomMargin = 10 })
-        content.addView(project("♫", "Music Player", "com.music.player", "✓ Ready", green), LinearLayout.LayoutParams(-1, 78).apply { bottomMargin = 10 })
-
-        val status = tv("✓  Native Android build ready\n\n${BuildConfig.APP_DESCRIPTION}", 14f, Color.WHITE).apply {
+        content.addView(tv("Recent Projects", 27f, Color.WHITE, true).apply { setPadding(0, 34, 0, 14) })
+        content.addView(tv("✓  Native Android build ready\n\n${BuildConfig.APP_DESCRIPTION}", 14f, Color.WHITE).apply {
             setPadding(18, 18, 18, 18)
             setBackgroundColor(Color.rgb(13, 18, 25))
-        }
-        content.addView(status, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 18 })
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 18 })
 
         scroll.addView(content)
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
+        setContentView(root)
+    }
+
+    private fun showWebUrlHelp() {
+        val message = "To create a Web-to-Native APK, run the GitHub Actions workflow and provide an HTTPS Website URL. The generated APK opens that website inside a native Android WebView with JavaScript and local storage enabled."
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.BLACK)
+            setPadding(28, 28, 28, 28)
+        }
+        root.addView(tv("🌐  Web to Native APK", 28f, Color.WHITE, true))
+        root.addView(tv(message, 16f, muted).apply { setPadding(0, 18, 0, 26) })
+        root.addView(Button(this).apply {
+            text = "Back to APK Builder"
+            setOnClickListener { openBuilderHome() }
+        })
         setContentView(root)
     }
 
