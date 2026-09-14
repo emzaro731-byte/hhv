@@ -5,121 +5,130 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 
 class MainActivity : Activity() {
-    private val bg = Color.rgb(7, 7, 10)
-    private val panel = Color.rgb(17, 18, 24)
-    private val blue = Color.rgb(77, 141, 255)
-    private val white = Color.WHITE
-    private val muted = Color.rgb(150, 153, 164)
+    private val bg = Color.BLACK
+    private val card = Color.rgb(9, 15, 22)
+    private val blue = Color.rgb(22, 131, 255)
+    private val muted = Color.rgb(153, 168, 188)
+    private val green = Color.rgb(24, 213, 138)
+
+    private fun tv(text: String, size: Float, color: Int, bold: Boolean = false): TextView = TextView(this).apply {
+        this.text = text
+        textSize = size
+        setTextColor(color)
+        if (bold) typeface = Typeface.DEFAULT_BOLD
+    }
+
+    private fun cardButton(icon: String, title: String, subtitle: String, action: () -> Unit): Button = Button(this).apply {
+        text = "$icon  $title\n$subtitle"
+        textSize = 15f
+        gravity = Gravity.CENTER_VERTICAL or Gravity.START
+        setTextColor(Color.WHITE)
+        setPadding(24, 12, 16, 12)
+        setBackgroundColor(card)
+        setOnClickListener { action() }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = bg
-        window.navigationBarColor = bg
+        window.statusBarColor = Color.BLACK
+        window.navigationBarColor = Color.BLACK
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(bg)
-            setPadding(28, 24, 28, 24)
+            setPadding(22, 10, 22, 18)
         }
 
-        val header = TextView(this).apply {
-            text = "✦  ${BuildConfig.APP_NAME}"
-            textSize = 23f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(white)
-            setPadding(0, 12, 0, 20)
+        val top = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
         }
-        root.addView(header)
+        val menu = tv("☰", 30f, Color.WHITE).apply { gravity = Gravity.CENTER; setPadding(8, 8, 20, 8) }
+        val plus = Button(this).apply {
+            text = "✦  Get Plus"
+            textSize = 18f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.rgb(80, 170, 255))
+            setBackgroundColor(Color.rgb(38, 49, 59))
+            setPadding(18, 5, 18, 5)
+        }
+        top.addView(menu, LinearLayout.LayoutParams(0, 58, 1f))
+        top.addView(plus, LinearLayout.LayoutParams(-2, 58))
+        val profile = tv("◔", 29f, Color.WHITE).apply { gravity = Gravity.CENTER; setPadding(20, 8, 4, 8) }
+        top.addView(profile, LinearLayout.LayoutParams(0, 58, 1f))
+        root.addView(top)
 
         val scroll = ScrollView(this)
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
         }
 
-        val badge = TextView(this).apply {
-            text = "NATIVE ANDROID  •  v${BuildConfig.VERSION_NAME}"
-            textSize = 11f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.rgb(121, 170, 255))
-            setPadding(0, 10, 0, 14)
-        }
-        content.addView(badge)
+        val logo = tv("🤖", 54f, blue).apply { gravity = Gravity.CENTER; setPadding(0, 55, 0, 10) }
+        content.addView(logo, LinearLayout.LayoutParams(-1, 125))
 
-        val title = TextView(this).apply {
-            text = "Built for your idea."
-            textSize = 34f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(white)
-            setPadding(0, 6, 0, 10)
-        }
-        content.addView(title)
+        val brand = tv("APK ", 42f, Color.WHITE, true).apply { append(tvSpan("Builder", blue, true)) }
+        brand.gravity = Gravity.CENTER
+        content.addView(brand)
 
-        val description = TextView(this).apply {
-            text = BuildConfig.APP_DESCRIPTION
-            textSize = 16f
-            setTextColor(muted)
-            setPadding(0, 0, 0, 24)
-        }
-        content.addView(description)
-
-        val status = TextView(this).apply {
-            text = "✓  Native Android build is running"
-            textSize = 15f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(white)
-            setBackgroundColor(panel)
-            setPadding(20, 20, 20, 20)
-        }
-        content.addView(status)
-
-        val features = listOf(
-            "⚡ Fast native Android performance",
-            "🔒 Ready for secure API integration",
-            "🔔 Notifications and background features",
-            "💳 Payments and authentication can be added"
-        )
-        features.forEach { feature ->
-            val row = TextView(this).apply {
-                text = feature
-                textSize = 14f
-                setTextColor(Color.rgb(220, 222, 228))
-                setPadding(18, 18, 18, 18)
-            }
-            content.addView(row)
-        }
-
-        val action = Button(this).apply {
-            text = "Get Started"
-            textSize = 15f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(white)
-            setBackgroundColor(blue)
-            setPadding(20, 8, 20, 8)
-            setOnClickListener {
-                status.text = "✓  Welcome to ${BuildConfig.APP_NAME}!\n\nYour native Android application is ready."
-            }
-        }
-        val params = LinearLayout.LayoutParams(-1, 58)
-        params.topMargin = 20
-        content.addView(action, params)
-
-        val footer = TextView(this).apply {
-            text = "Built with APK Builder Hub"
-            textSize = 12f
-            setTextColor(Color.rgb(105, 108, 118))
+        val tagline = tv("Turn your ideas into real Android apps\nwith AI. Fast. Easy. No coding.", 17f, muted).apply {
             gravity = Gravity.CENTER
-            setPadding(0, 36, 0, 20)
+            setPadding(0, 12, 0, 28)
         }
-        content.addView(footer)
+        content.addView(tagline)
+
+        val quick = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val row1 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; weightSum = 2f }
+        row1.addView(cardButton("✦", "Create App", "Describe your idea") { status.text = "Describe your app idea below to start building." }, LinearLayout.LayoutParams(0, 82, 1f))
+        row1.addView(cardButton("▧", "Use Template", "Start from a template") { status.text = "Template library is ready." }, LinearLayout.LayoutParams(0, 82, 1f).apply { leftMargin = 10 })
+        quick.addView(row1)
+        val row2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; weightSum = 2f }
+        row2.addView(cardButton("</>", "Upload Code", "Use your own project") { status.text = "Native project import is available through the build pipeline." }, LinearLayout.LayoutParams(0, 82, 1f).apply { topMargin = 10 })
+        row2.addView(cardButton("⚙", "App Settings", "Configure your app") { status.text = "${BuildConfig.APP_NAME} • ${BuildConfig.VERSION_NAME}" }, LinearLayout.LayoutParams(0, 82, 1f).apply { topMargin = 10; leftMargin = 10 })
+        quick.addView(row2)
+        content.addView(quick, LinearLayout.LayoutParams(-1, -2))
+
+        val recent = tv("Recent Projects", 27f, Color.WHITE, true).apply { setPadding(0, 34, 0, 14) }
+        content.addView(recent)
+
+        fun project(icon: String, name: String, pkg: String, state: String, stateColor: Int): LinearLayout {
+            val box = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; setPadding(16, 13, 16, 13); setBackgroundColor(Color.rgb(10, 15, 21)) }
+            val ic = tv(icon, 25f, Color.WHITE).apply { gravity = Gravity.CENTER; setBackgroundColor(Color.rgb(45, 110, 230)) }
+            box.addView(ic, LinearLayout.LayoutParams(58, 58))
+            val info = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(14, 0, 8, 0) }
+            info.addView(tv(name, 17f, Color.WHITE, true))
+            info.addView(tv(pkg, 13f, muted))
+            info.addView(tv("Built recently", 13f, muted))
+            box.addView(info, LinearLayout.LayoutParams(0, -2, 1f))
+            box.addView(tv(state, 13f, stateColor, true).apply { gravity = Gravity.CENTER; setPadding(12, 10, 12, 10) }, LinearLayout.LayoutParams(-2, -2))
+            return box
+        }
+        content.addView(project("🛍", "My Store App", "com.mystore.app", "✓ Ready", green), LinearLayout.LayoutParams(-1, 78).apply { bottomMargin = 10 })
+        content.addView(project("💬", "Chat App", "com.chat.app", "◯ Building", blue), LinearLayout.LayoutParams(-1, 78).apply { bottomMargin = 10 })
+        content.addView(project("♫", "Music Player", "com.music.player", "✓ Ready", green), LinearLayout.LayoutParams(-1, 78).apply { bottomMargin = 10 })
+
+        val status = tv("✓  Native Android build ready\n\n${BuildConfig.APP_DESCRIPTION}", 14f, Color.WHITE).apply {
+            setPadding(18, 18, 18, 18)
+            setBackgroundColor(Color.rgb(13, 18, 25))
+        }
+        content.addView(status, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 18 })
 
         scroll.addView(content)
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
         setContentView(root)
+    }
+
+    private fun tvSpan(text: String, color: Int, bold: Boolean): android.text.SpannableString {
+        val s = android.text.SpannableString(text)
+        s.setSpan(android.text.style.ForegroundColorSpan(color), 0, text.length, 0)
+        if (bold) s.setSpan(android.text.style.StyleSpan(Typeface.BOLD), 0, text.length, 0)
+        return s
     }
 }
