@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val webUrl = providers.gradleProperty("webUrl").orElse("https://emzaro731-byte.github.io/hhv/").get()
+val appVersion = providers.gradleProperty("versionName").orElse("1.0.0").get()
+
 android {
     namespace = "com.emzaro.apkbuilder"
     compileSdk = 35
@@ -12,8 +15,8 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0.0"
-        buildConfigField("String", "WEB_URL", "\"https://emzaro731-byte.github.io/hhv/\"")
+        versionName = appVersion
+        buildConfigField("String", "WEB_URL", "\"${webUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     }
 
     buildTypes {
