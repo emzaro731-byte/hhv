@@ -25,6 +25,7 @@ android {
         buildConfigField("String", "APP_NAME", quote(appName))
         buildConfigField("String", "APP_DESCRIPTION", quote(appDescription))
         buildConfigField("String", "WEBSITE_URL", quote(websiteUrl))
+        manifestPlaceholders["appName"] = appName
         manifestPlaceholders["appOrientation"] = when (orientation.lowercase()) {
             "landscape" -> "landscape"
             "sensor" -> "fullSensor"
