@@ -1,12 +1,24 @@
-name: Build Android APK and AAB
+name: Build Native Android APK and AAB
 
 on:
   workflow_dispatch:
     inputs:
-      web_url:
-        description: "Website URL to package"
+      app_name:
+        description: "Native app name"
         required: false
-        default: "https://emzaro731-byte.github.io/hhv/"
+        default: "My Native App"
+      app_package:
+        description: "Android package name"
+        required: false
+        default: "com.example.myapp"
+      app_description:
+        description: "App description"
+        required: false
+        default: "Built with APK Builder Hub"
+      orientation:
+        description: "Screen orientation"
+        required: false
+        default: "portrait"
       version_name:
         description: "App version"
         required: false
@@ -20,7 +32,10 @@ jobs:
     permissions:
       contents: read
     env:
-      WEB_URL: ${{ inputs.web_url || 'https://emzaro731-byte.github.io/hhv/' }}
+      APP_NAME: ${{ inputs.app_name || 'My Native App' }}
+      APP_PACKAGE: ${{ inputs.app_package || 'com.example.myapp' }}
+      APP_DESCRIPTION: ${{ inputs.app_description || 'Built with APK Builder Hub' }}
+      ORIENTATION: ${{ inputs.orientation || 'portrait' }}
       VERSION_NAME: ${{ inputs.version_name || '1.0.0' }}
 
     steps:
@@ -38,8 +53,14 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build debug APK and release AAB
-        run: gradle :app:assembleDebug :app:bundleRelease --no-daemon -PwebUrl="$WEB_URL" -PversionName="$VERSION_NAME"
+      - name: Validate native app configuration
+        shell: bash
+        run: |
+          [[ "$APP_PACKAGE" =~ ^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$ ]] || { echo "Invalid Android package name"; exit 1; }
+          [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version must use x.y.z"; exit 1; }
+
+      - name: Build real native APK and AAB
+        run: gradle :app:assembleDebug :app:bundleRelease --no-daemon -PappName="$APP_NAME" -PappPackage="$APP_PACKAGE" -PappDescription="$APP_DESCRIPTION" -Porientation="$ORIENTATION" -PversionName="$VERSION_NAME"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
