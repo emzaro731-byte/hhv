@@ -39,7 +39,7 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK and release AAB
-        run: gradle :app:assembleDebug :app:bundleRelease --no-daemon
+        run: gradle :app:assembleDebug :app:bundleRelease --no-daemon -PwebUrl="$WEB_URL" -PversionName="$VERSION_NAME"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
