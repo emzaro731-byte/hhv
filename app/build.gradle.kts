@@ -13,6 +13,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+        buildConfigField("String", "WEB_URL", "\"https://emzaro731-byte.github.io/hhv/\"")
     }
 
     buildTypes {
@@ -20,10 +21,6 @@ android {
     }
 
     buildFeatures { buildConfig = true }
-
-    defaultConfig {
-        buildConfigField("String", "WEB_URL", "\"https://emzaro731-byte.github.io/hhv/\"")
-    }
 }
 
 dependencies {
