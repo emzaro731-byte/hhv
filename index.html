@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>APK Builder Hub</title>
+  <style>
+    :root{--bg:#080b14;--panel:#111827;--panel2:#172033;--text:#f8fafc;--muted:#94a3b8;--accent:#7c3aed;--accent2:#2563eb;--border:#263247;--good:#22c55e;--warn:#f59e0b}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at top,#172554 0,#080b14 42%);color:var(--text);min-height:100vh}
+    .wrap{max-width:1100px;margin:auto;padding:24px}.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:55px}.brand{font-weight:800;font-size:21px}.badge{font-size:12px;color:#c4b5fd;background:#2e1065;padding:7px 10px;border-radius:999px}
+    .hero{text-align:center;max-width:780px;margin:auto}.hero h1{font-size:clamp(38px,8vw,72px);line-height:1;margin:0 0 18px}.gradient{background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;color:transparent}.hero p{color:var(--muted);font-size:18px;line-height:1.6}.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:750;cursor:pointer;color:white;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 30px #0005}.btn.secondary{background:#172033;border:1px solid var(--border)}
+    .hero-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:28px 0 55px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:#0e1626cc;border:1px solid var(--border);border-radius:18px;padding:22px;backdrop-filter:blur(10px)}.card h3{margin:0 0 8px}.card p{color:var(--muted);line-height:1.55;margin:0}.icon{font-size:26px;margin-bottom:12px}.builder{margin-top:55px}.builder h2{text-align:center}.drop{border:2px dashed #40506c;border-radius:18px;padding:35px 20px;text-align:center;margin:18px 0;background:#0b1220}.drop.drag{border-color:#8b5cf6;background:#16102b}.drop input{display:none}.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}.field input,.field select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0a1120;color:white;outline:none}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.status{margin-top:18px;display:none}.bar{height:9px;background:#1e293b;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#3b82f6);transition:width .3s}.small{font-size:13px;color:var(--muted)}footer{text-align:center;color:#64748b;padding:50px 0 20px;font-size:13px}
+    @media(max-width:700px){.wrap{padding:16px}.nav{margin-bottom:35px}.grid,.form{grid-template-columns:1fr}.hero p{font-size:16px}.btn{width:100%}.hero-actions .btn{width:auto}.card{padding:18px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav"><div class="brand">⚡ APK Builder Hub</div><span class="badge">Android-ready workspace</span></nav>
+  <section class="hero">
+    <h1>Turn your website into an <span class="gradient">Android app.</span></h1>
+    <p>Upload your web project, configure your app, and prepare an APK or AAB build. Designed for creators who want to work directly from their phone.</p>
+    <div class="hero-actions"><a class="btn" href="#builder">Start Building</a><a class="btn secondary" href="#how">How it works</a></div>
+  </section>
+  <section class="grid" id="how">
+    <div class="card"><div class="icon">📦</div><h3>Upload</h3><p>Choose a ZIP containing your website or web app from your Android phone.</p></div>
+    <div class="card"><div class="icon">⚙️</div><h3>Configure</h3><p>Set the app name, package ID, version, orientation and Android SDK target.</p></div>
+    <div class="card"><div class="icon">🚀</div><h3>Build</h3><p>Send the job to a connected Android build service and retrieve the resulting artifact.</p></div>
+  </section>
+  <section class="card builder" id="builder">
+    <h2>Build your Android app</h2>
+    <div class="drop" id="drop"><input id="file" type="file" accept=".zip,application/zip"/><div style="font-size:38px">📁</div><p><b>Drop your ZIP here</b> or <button class="btn secondary" id="choose" type="button">Choose file</button></p><div class="small" id="fileName">ZIP projects only</div></div>
+    <div class="form">
+      <div class="field"><label>App name</label><input id="appName" value="My Android App" /></div>
+      <div class="field"><label>Package name</label><input id="packageName" value="com.example.myapp" /></div>
+      <div class="field"><label>Version</label><input id="version" value="1.0.0" /></div>
+      <div class="field"><label>Orientation</label><select id="orientation"><option>Portrait</option><option>Landscape</option><option>Sensor</option></select></div>
+      <div class="field"><label>Minimum Android SDK</label><select id="sdk"><option>24</option><option>26</option><option>28</option><option>30</option><option>35</option></select></div>
+    </div>
+    <div class="actions"><button class="btn" id="apk">Build APK</button><button class="btn secondary" id="aab">Build AAB</button></div>
+    <div class="status" id="status"><p id="statusText">Preparing build…</p><div class="bar"><i id="progress"></i></div><p class="small" id="notice"></p></div>
+  </section>
+  <footer>APK Builder Hub · Backend-ready architecture. A real APK/AAB requires a connected Android build service.</footer>
+</div>
+<script>
+const file=document.getElementById('file'),drop=document.getElementById('drop');
+document.getElementById('choose').onclick=()=>file.click();
+file.onchange=()=>{if(file.files[0])document.getElementById('fileName').textContent=file.files[0].name};
+['dragenter','dragover'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('drag')}));
+drop.ondrop=e=>{if(e.dataTransfer.files[0]){file.files=e.dataTransfer.files;document.getElementById('fileName').textContent=e.dataTransfer.files[0].name}};
+function build(format){
+ const status=document.getElementById('status'),bar=document.getElementById('progress'),text=document.getElementById('statusText'),notice=document.getElementById('notice');
+ if(!file.files[0]){alert('Please choose a ZIP project first.');return}
+ status.style.display='block';let p=0;text.textContent='Preparing '+format.toUpperCase()+' build…';notice.textContent='Validating project configuration.';
+ const timer=setInterval(()=>{p+=20;bar.style.width=p+'%';if(p>=100){clearInterval(timer);text.textContent='Build service not connected';notice.textContent='Your project is configured, but this GitHub Pages frontend cannot compile an APK by itself. Connect a real Android build API/backend to produce the artifact.'}},350)
+}
+document.getElementById('apk').onclick=()=>build('apk');document.getElementById('aab').onclick=()=>build('aab');
+</script>
+</body></html>
